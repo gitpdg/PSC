@@ -45,7 +45,12 @@
 		<param name="activityPriority_1"        value="1" />
 		<param name="activityTypicalDuration_1" value="12:00:00" />
 		<param name="activityMinimalDuration_1" value="08:00:00" />
-	
+
+		<param name="activityType_2"            value="s" /> 
+		<param name="activityPriority_2"        value="1" />
+		<param name="activityTypicalDuration_2" value="02:00:00" />
+		<param name="activityMinimalDuration_2" value="00:30:00" />
+		
 	</module>
 	
 	<module name="strategy">
