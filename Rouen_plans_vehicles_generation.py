@@ -464,20 +464,12 @@ def creation_vehicles() :
     
     
 
-def dpoptoy(x,y):
-    """ définie sur [-1000,1000]^2, de norme infinie inférieure à 1"""
-    return (exp(-((x/1000)**2+(y/1000)**2)))
-
-def dworktoy(x,y):
-    """ définie sur [-1000,1000]^2, de norme infinie inférieure à 1"""
-    return (exp(-((x/1000)**2+(y/1000)**2)))
-        
 def choix_spatial(fonction):
     """ détermine un choix de x,y selon la méthode du rejet """
     acceptable = False
     while (not acceptable):
-        x = (rd.random()-0.5)*2000
-        y = (rd.random()-0.5)*2000
+        x = x_min+(rd.random())*(x_max-x_min)
+        y = y_min+(rd.random())*(y_max-y_min)
         t = rd.random()
         acceptable = (fonction(x,y)>t)
     return (round(x),round(y))
