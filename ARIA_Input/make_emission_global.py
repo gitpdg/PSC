@@ -1,15 +1,19 @@
 
 def format_compatible():
     """
+    Author : Paul
     cet algo prend en entrée le réseau "minimal" sous la forme id_Matsim, x1,y1,x2,y2
-    ce fichier doit se trouver dans le dossier auquel on accède par chemin et doit s'appeler reseau_rouen_minimal.csv
+    ce fichier doit se trouver dans le dossier auquel on accède par chemin et doit s'appeler nom_entree
     En sortie, cela créé un csv compatible avec Aria. En particulier, cela transforme l'id de matsim en un id de type int (id_matsim reste stocké dans la variable NAMADM) et cela remplit toutes les colonnes inutiles dans notre cas
     attention à adapter le chemin d'accès
+    Enfin, c'est dans ce fichier qu'on règle les unités et les polluants qu'on étudie
     """
+    
     chemin = "C:/Users/adminuser/Desktop/emissions/"
-
-
-    f = open(chemin+"reseau_rouen_minimal.csv","r")
+    nom_entree = "reseau_minimal.csv"
+    nom_sortie = "reseau_compatible.csv"
+    
+    f = open(chemin+nom,"r")
     original = f.readlines()
     f.close()
     
@@ -53,7 +57,7 @@ def format_compatible():
         
         new.append(line)
     
-    f= open(chemin+"reseau_rouen_compatible.csv","w")
+    f= open(chemin+nom_sortie,"w")
     for line in new:
         f.write(line+'\n')
     f.close()
