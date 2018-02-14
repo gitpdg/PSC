@@ -1,5 +1,5 @@
 #author : Paul
-#Creates a grid of receptors to be used for the square
+#Creates a 10x10 grid of receptors (with ARIA format) to be used for the square
 
 f = open("C:/Users/adminuser/Desktop/recepteurs/recepteurs.csv","w")
 f.write("R_INDEX;R_NAME;R_X;R_Y;R_ALTI\n")
