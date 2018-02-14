@@ -1,5 +1,6 @@
 # Written by Cédric
-# Convert a network.xml into a .xls that contains all the links and the coordinates of their two ends. Is to be completed with another Python script that writes a complete input file for Aria lineic emissions 
+# Convert a network.xml into a .xls that contains all the links and the coordinates of their two ends.
+# Is to be completed with another Python script that writes an input file for Aria lineic emissions
 
 from xlwt import Workbook  
 
@@ -36,6 +37,5 @@ for link in tree.xpath("/network/links/link"):
     ligne.write(4,y2)
     num+=1
     
-# création matérielle du fichier résultant
 book.save('minimal_network.xls')
 
