@@ -1,14 +1,14 @@
+# Written by Cédric
+# Convert a network.xml into a .xls that contains all the links and the coordinates of their two ends. Is to be completed with another Python script that writes a complete input file for Aria lineic emissions 
+
 from xlwt import Workbook  
 
 from lxml import etree
 
-# création 
 book = Workbook()
     
-# création de la feuille 1
 feuil1 = book.add_sheet('feuille 1')
     
-# ajout des en-têtes
 feuil1.write(0,0,'id1')
 feuil1.write(0,1,'x1')
 feuil1.write(0,2,'y1')
@@ -37,5 +37,5 @@ for link in tree.xpath("/network/links/link"):
     num+=1
     
 # création matérielle du fichier résultant
-book.save('monsimple.xls')
+book.save('minimal_network.xls')
 
