@@ -2,11 +2,11 @@
 def format_compatible():
     """
     Author : Paul
-    cet algo prend en entrée le réseau "minimal" sous la forme id_Matsim, x1,y1,x2,y2
-    ce fichier doit se trouver dans le dossier auquel on accède par chemin et doit s'appeler nom_entree
-    En sortie, cela créé un csv compatible avec Aria. En particulier, cela transforme l'id de matsim en un id de type int (id_matsim reste stocké dans la variable NAMADM) et cela remplit toutes les colonnes inutiles dans notre cas
-    attention à adapter le chemin d'accès
-    Enfin, c'est dans ce fichier qu'on règle les unités et les polluants qu'on étudie
+    this algo takes as input the network "minimal" in the form id_Matsim, x1, y1, x2, y2
+     this file must be in the folder that is accessed by path and must be named input_name
+     In output, it creates a csv compatible with Aria. In particular, it transforms the id of matsim into an id of type int (id_matsim remains stored in the variable NAMADM) and that fills all useless columns in our case
+     be careful to adapt the path
+     Finally, it is in this file that we settle the units and pollutants we study.
     """
     
     chemin = "C:/Users/adminuser/Desktop/emissions/"
