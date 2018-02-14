@@ -1,19 +1,19 @@
 
-def format_compatible():
+def make_emission_global():
     """
     Author : Paul
     this algo takes as input the network "minimal" in the form id_Matsim, x1, y1, x2, y2
-     this file must be in the folder that is accessed by path and must be named input_name
-     In output, it creates a csv compatible with Aria. In particular, it transforms the id of matsim into an id of type int (id_matsim remains stored in the variable NAMADM) and that fills all useless columns in our case
-     be careful to adapt the path
-     Finally, it is in this file that we settle the units and pollutants we study.
+    this file must be in the folder that is accessed by path and must be named input_name
+    In output, it creates a csv compatible with Aria. In particular, it transforms the id of matsim into an id of type int (id_matsim remains stored in the variable NAMADM) and that fills all useless columns in our case
+    be careful to adapt the path
+    Finally, it is in this file that we settle the units and pollutants we study.
     """
     
-    chemin = "C:/Users/adminuser/Desktop/emissions/"
+    path = "C:/Users/adminuser/Desktop/emissions/"
     nom_entree = "reseau_minimal.csv"
     nom_sortie = "reseau_compatible.csv"
     
-    f = open(chemin+nom,"r")
+    f = open(path+nom,"r")
     original = f.readlines()
     f.close()
     
@@ -25,7 +25,7 @@ def format_compatible():
         lines[i]=original[i].copy()
     
     for i in range(len(original)):
-        #redéfinition de l'id
+        #changing the id into an int id with a one-to-one function (this only works for IDs of the type given by an OpenStreetMap export)
         id = original[i][0]
         idbis=""
         for char in id:
@@ -57,10 +57,10 @@ def format_compatible():
         
         new.append(line)
     
-    f= open(chemin+nom_sortie,"w")
+    f= open(path+nom_sortie,"w")
     for line in new:
         f.write(line+'\n')
     f.close()
 
 
-format_compatible()
+make_emission_global()
