@@ -4,89 +4,293 @@ from math import exp
 
 ###
 
+print("Extracting map from file...")
+
+#To be completed
+mapfile = ""
+
+source = open(mapfile, "r")
+
+#We get the content of the file
+s = source.readlines()
+
+#We make one big string
+s2 = str()
+for i in s : 
+    s2=s2+i
+s=s2
+
+#We get rid of the first part of the string, and get the links and nodes
+s=s.split('<nodes>')[1]
+nodes, links = s.split('</nodes>')
+links = links.split('</links>')[0]
+links = links.split('<links')[1]
+
+#We make dicts of all nodes and links
+
+#First the nodes
+nodes = nodes.split("<node")
+#We get rid of anomalies
+nodes2 = list()
+for node in nodes:
+    if ("id" in node):
+        nodes2.append(node.split("/>")[0])
+nodes = nodes2
+node_dict = dict()
+#We make a dictionnary
+for node in nodes:
+    l1 = node.split('="')
+    l2 = list()
+    for i in l1:
+        l2=l2+i.split('"')
+    node_dict[int(l2[1])]=[l2[3],l2[5]]
+
+#Then the links
+links = links.split("<link")
+#We get rid of anomalies
+links2 = list()
+for link in links:
+    if ("id=" in link):
+        links2.append(link.split("/>")[0])
+links = links2
+link_dict = dict()
+#We make a dictionnary
+for link in links:
+    l1 = link.split('="')
+    l2 = list()
+    for i in l1:
+        l2=l2+i.split('"')
+    link_dict[l2[1]]=[l2[3],l2[5]]
+    
+#Then, we mix the two to get the map
+for link in link_dict:
+    link_dict[link] = node_dict[int(link_dict[link][0])]+node_dict[int(link_dict[link][1])]
+
+#We generate the map
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return float(s)
+
+x_nodes = [num(node_dict[key][0]) for key in node_dict]
+y_nodes = [num(node_dict[key][1]) for key in node_dict]
+
+roads = list()
+for link in link_dict:
+    roads.append([link, [num(link_dict[link][0]),num(link_dict[link][2])],[num(link_dict[link][1]),num(link_dict[link][3])]])
+
+print("Map in link_dict in the form [x1,y1,x2,y2].")
+
+###
 
 import matplotlib.pyplot as plt
 import numpy as np
 import math
 
+
 #Map parameters
-x_min=-1000
-x_max=1000
-y_min=-1000
-y_max=1000
+x_min=354970
+x_max=367550
+y_min=5470440
+y_max=5483500
 amplitude_x = x_max-x_min
 amplitude_y = y_max-y_min
 
-#A gaussian peak in one point centered in 'center' (list of size 2 containing the x_center,y_center coordinates of the center), the function is evalutated in coordinates x,y
-def peaked_function(x,y,center):
-    return center[2]*math.exp(-(2*(x-center[0])/amplitude_x)**2-(2*(y-center[1])/amplitude_y)**2)
+#To be chosen
+resolution = 1000
 
-#Same, but with mutltiple peaks defined in the list center_tab
-def multiple_peaked_fonction(x,y,center_tab):
-    tab = list()
-    for center in center_tab:
-        tab.append(peaked_function(x,y,center))
-    m = tab[0]
-    for i in range(len(tab)):
-        if tab[i]>m:
-            m=tab[i]
-    return m
 
-#Densities of work, population and shopping
-def dpop(x,y):
-    #Here we define the coordinates of the peaks, as well as the importance of each peak
-    center_tab=[[-500,-500,1],[500,-500,0.3],[-500,400,0.3]]
-    return multiple_peaked_fonction(x,y,center_tab)
+def f(x1,y1,x2,y2,x):
+    
+    """Calculates the image of a scalar by a function the graph of which is a line"""
+    a=(y2-y1)/(x2-x1)
+    return(a*(x-x1)+y1)
+        
+    
+def surroundings(X,Y,x1,x2,y1,y2):
+    
+    """Returns the coordinates which surround x1,x2,y1,y2 in X and Y"""
+        idown,iup = 0,0
+        jdown,jup= 0,0
+        ymin,ymax=min(y1,y2),max(y1,y2)
+        
+            
+        while X[idown+1]<x1 and idown < resolution-2:
+            idown+=1
 
-def dwork(x,y):
-    center_tab=[[500,500,1],[-500,500,0.3],[500,-400,0.3]]
-    return multiple_peaked_fonction(x,y,center_tab)
+        
+        while x2 >= X[iup] and iup < resolution-2:
+            iup+=1            
+        
+        
+        while Y[jdown+1] < ymin and jdown < resolution-2:
+            jdown+=1
+        
 
-def dshop(x,y):
-    center_tab=[[-500,500,0.8],[500,-400,0.6]]
-    return multiple_peaked_fonction(x,y,center_tab)
+        while ymax >= Y[jup] and jup < resolution-2:
+            jup+=1
+
+        return(idown,iup,jdown,jup)
+    
+    
+        
+    
+def roaddensity():
+    
+    """Returns a matrix with the road density in each square"""
+    
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,resolution)
+    Y = np.linspace(y_min,y_max,resolution)
+        
+    
+    #Density matrix
+    road_density=np.zeros((resolution-1,resolution-1))
+
+    
+    for road in link_dict:
+        
+        #Visited squares matrix
+        alreadyseen=np.zeros((resolution-1,resolution-1))
+
+        #Coordinates of the beginning and the end of the road
+        x1,x2=float(link_dict[road][0]),float(link_dict[road][2])
+        y1,y2=float(link_dict[road][1]),float(link_dict[road][3])
+        
+        
+        #Surroundigs
+        idown,iup,jdown,jup=surroundings(X,Y,x1,x2,y1,y2)
+    
+        
+        for i in range(idown+1,iup):
+            x=X[i]
+                            
+            #Ordinate of the intersection point between the road and the verticle line (equation x=...)                        
+            ord=f(x1,y1,x2,y2,x)
+
+            for j in range(jdown,jup) :
+                    
+                    
+                if ord >= Y[j] and ord<=Y[j+1]:
+                    
+                    if alreadyseen[resolution-2-j][i]==0:
+                        road_density[resolution-2-j][i]+=1
+                        alreadyseen[resolution-2-j][i]=1
+                                
+                    
+                    if alreadyseen[resolution-2-j][i-1]==0:
+                        road_density[resolution-2-j][i-1]+=1
+                        alreadyseen[resolution-2-j][i-1]=1
+        
+        
+        
+        for j in range(jdown+1,jup):
+            y=Y[j]
+            
+            #Abscissa of the intersection point between the road and the horizontal line (equation y=...)
+            absc=f(y1,x1,y2,x2,y)
+            
+            for i in range(idown,iup):
+                
+                if absc >= X[i] and absc <= X[i+1]:
+                    
+                    if alreadyseen[resolution-2-j][i]==0:
+                        road_density[resolution-2-j][i]+=1
+                        alreadyseen[resolution-2-j][i]=1
+                                
+                    
+                    if alreadyseen[resolution-2-j+1][i]==0:
+                        road_density[resolution-2-j+1][i]+=1
+                        alreadyseen[resolution-2-j+1][i]=1
+        
+        
+
+    #Final road_density
+    somme = 0
+    for i in range(resolution-1):
+        for j in range(resolution-1):
+            somme+=road_density[i][j]
+            
+    for i in range(resolution-1):
+        for j in range(resolution-1):
+            road_density[i][j]=road_density[i][j]/somme
+        
+    
+    
+    return road_density
+
+
+def roadtopop(x):
+    return (28*x**2)
+
+"""Choses the function that links road density to population density"""
+
+
+#Population density
+def popdensity():
+    
+    """Calculates the matrix of population density with the road density"""
+    road_density=roaddensity()
+    
+    l=len(road_density[0])
+    
+    pop_density=np.zeros((l,l))
+
+    for i in range(l):
+        for j in range(l):
+            pop_density[i][j]=roadtopop(road_density[i][j])
+            
+    
+    return(pop_density)
+
+    
 
 #Graphic output
-def density_graphs():
-    resolution = 25  
+def roaddensity_graphs():
 
-    X = np.linspace(y_min,y_max,resolution)
-    Y = np.linspace(y_min,y_max,resolution)
-    Z=list()
-    for i in X:
-        Z.insert(0,[])
-        for j in Y:
-            Z[0].append(dpop(j,i))
-    
-    f, ax = plt.subplots()
-    ax.set_title('Population density')
-    ax.imshow(Z,interpolation='none',extent = (x_min,x_max,y_min,x_max))
+    road_density=roaddensity()
+    l=len(road_density[0])
     
     
     Z=list()
-    for i in X:
+    for i in range(l):
         Z.insert(0,[])
-        for j in Y:
-            Z[0].append(dwork(j,i))
-            
-    f, ax = plt.subplots()
-    ax.set_title('Work density')
-    ax.imshow(Z,interpolation='none',extent = (x_min,x_max,y_min,x_max))
+        for j in range(l):
+            Z[0].append(road_density[resolution-2-i][j])
     
-    Z=list()
-    for i in X:
-        Z.insert(0,[])
-        for j in Y:
-            Z[0].append(dshop(j,i))
-            
     f, ax = plt.subplots()
-    ax.set_title('Shopping and leisure density')
-    ax.imshow(Z,interpolation='none',extent = (x_min,x_max,y_min,x_max))
+    ax.set_title('Road density')
+    ax.imshow(Z,interpolation='bilinear',extent = (x_min,x_max,y_min,y_max))
     
     plt.show()
     return
 
+roaddensity_graphs()
 
+
+def popdensity_graphs():
+
+    pop_density=popdensity()
+    l=len(pop_density[0])
+    
+    
+    Z=list()
+    for i in range(l):
+        Z.insert(0,[])
+        for j in range(l):
+            Z[0].append(pop_density[resolution-2-i][j])
+    
+    f, ax = plt.subplots()
+    ax.set_title('Population density')
+    ax.imshow(Z,interpolation='bilinear',extent = (x_min,x_max,y_min,y_max))
+    
+    plt.show()
+    return
+
+popdensity_graphs()
 ####
 
 
