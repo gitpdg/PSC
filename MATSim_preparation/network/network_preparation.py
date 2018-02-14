@@ -1,3 +1,6 @@
+# Written by Cédric
+# This program deletes the links which have a length taht is 'NaN' because MatSim does not work with these.  
+
 import lxml.etree as le
 
 with open('C:/Users/proprietaire/Documents/PSC Clarity/Toy Model/network_rouen_agglo.xml','r') as f:
