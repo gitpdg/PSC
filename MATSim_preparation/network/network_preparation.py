@@ -1,5 +1,5 @@
 # Written by Cédric
-# This program deletes the links which have a length taht is 'NaN' because MatSim does not work with these.  
+# This program deletes the links which have a length that is 'NaN' because MatSim does not work with these.  
 
 import lxml.etree as le
 
