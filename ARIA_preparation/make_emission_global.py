@@ -10,10 +10,10 @@ def make_emission_global():
     """
     
     path = "C:/Users/adminuser/Desktop/emissions/"
-    nom_entree = "reseau_minimal.csv"
-    nom_sortie = "reseau_compatible.csv"
+    input_name = "reseau_minimal.csv"
+    output_name = "reseau_compatible.csv"
     
-    f = open(path+nom,"r")
+    f = open(path+input_name,"r")
     original = f.readlines()
     f.close()
     
@@ -57,7 +57,7 @@ def make_emission_global():
         
         new.append(line)
     
-    f= open(path+nom_sortie,"w")
+    f= open(path+output_name,"w")
     for line in new:
         f.write(line+'\n')
     f.close()
