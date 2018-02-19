@@ -3,12 +3,15 @@ import matplotlib.patches as patches
 
 ###CONFIG
 
-#Define the file of the concentration (ARIA output), 
-#and the distance (in 100m ?) x and y between two sensors
-
-file = "Documents/exemples de formats/concentrations.csv"
+#input
+file = "Documents/exemples de formats/concentrations.csv" #this is an ARIA output
+listing = "Documents/exemples de formats/listing.lis" #this is an ARIA output
+#the distance (in 100m ?) x and y between two sensors
 dx=2
 dy=2
+
+#output
+mean_file = "Documents/exemples de formats/mean_file.txt"
 
 ##READ EVENTS
 
@@ -129,8 +132,27 @@ def image_output(concentrations):
         
     return 
 
+### CALCULATING THE COSTS
+
+def mean_concentrations():
+    """
+    creates (or overwrites) the file mean_file, which contains the average concentration on each sensor. It gets that data from the file listing, which is a direct output of ARIA.
+    """
+    f= open (listing, "r")
+    lines = f.readlines()
+    f.close()
+    
+    f = open(mean_file,"w")
+    i = lines.index(' CONCENTRATION EN MOYENNE ANNUELLE\n') + 5
+    while lines[i] != '  \n':
+        f.write(lines[i])
+        i+=1
+    
+    f.close()
+    
 
 ### RUN
 
 concentrations = file_to_dict()  
 image_output(concentrations)
+mean_concentrations()
