@@ -1,3 +1,13 @@
+"""
+This program processes ARIA's output, in order to get visualisations and a cost analysis.
+It is divided like this :
+    - config
+    - preliminary functions
+    - reading the concentration file
+    - image output
+    - calculating the costs
+    - run
+"""
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
@@ -12,8 +22,6 @@ dy=2
 
 #output
 mean_file = "Documents/exemples de formats/mean_file.txt"
-
-##READ EVENTS
 
 ##PRELEMINARY FUNCTIONS
 
