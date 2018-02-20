@@ -1,3 +1,15 @@
+"""
+This program is used to transform the emission data from MATsim into valid inputs for ARIA. It also allows to visualise the emissions.
+It is divided like this :
+    - config
+    -preliminary functions
+    - emissions to dict
+    - emission map
+    - emission to CSV
+    - map to CSV
+    - run
+"""
+
 import matplotlib.pyplot as plt
 
 ###CONFIG
