@@ -1,5 +1,5 @@
 
-def make_emission_global():
+def network_formatting():
     """
     Author : Paul
     this algo takes as input the network "minimal" in the form id_Matsim, x1, y1, x2, y2
@@ -9,10 +9,12 @@ def make_emission_global():
     Finally, it is in this file that we settle the units and pollutants we study.
     """
     
+    ## config
     path = "C:/Users/adminuser/Desktop/emissions/"
     input_name = "reseau_minimal.csv"
     output_name = "reseau_compatible.csv"
     
+    ## read file
     f = open(path+input_name,"r")
     original = f.readlines()
     f.close()
@@ -20,7 +22,6 @@ def make_emission_global():
     lines = [[] for i in range(len(original))]
     
     for i in range(len(original)):
-        #séparation en sous tableau
         original[i]=original[i].split(';')
         lines[i]=original[i].copy()
     
@@ -38,7 +39,7 @@ def make_emission_global():
             lines[i][0]=idbis+'0'
     
     for i in range(1, len(lines)):
-        #arrondi
+        #rounding to an int value
         for j in range(1,5):
             lines[i][j]=str(round(float(lines[i][j])))
     
@@ -53,7 +54,7 @@ def make_emission_global():
         line += lines[i][1]+";"+lines[i][2]
         line += ";0;"
         line += lines[i][3]+";"+lines[i][4]
-        line += ";0;-999;-999;-1;0;0;0;1;1"
+        line += ";0;-999;-999;-1;0;0;0;3;1" #the 3 corresponds to units, here in kg/hour
         
         new.append(line)
     
@@ -63,4 +64,4 @@ def make_emission_global():
     f.close()
 
 
-make_emission_global()
+network_formatting()
