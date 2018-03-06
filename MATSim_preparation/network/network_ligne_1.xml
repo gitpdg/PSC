@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE network SYSTEM "http://www.matsim.org/files/dtd/network_v2.dtd">
+
+<network name="test network for transit tutorial">
+<!-- -->
+<nodes>
+	<node id="0101" x="359989" y="5472174" />
+	<node id="0102" x="359962" y="5472670" />
+	<node id="0103" x="359926" y="5473215" />
+	<node id="0104" x="360329" y="5473853" />
+	<node id="0105" x="360771" y="5473774" />
+	<node id="0106" x="360883" y="5474260" />
+	<node id="0107" x="361183" y="5474781" />
+	<node id="0108" x="361565" y="5475321" />
+	<node id="0109" x="361436" y="5475952" />
+	<node id="0110" x="361344" y="5476538" />
+	<node id="0112" x="360713" y="5477080" />
+	<node id="0113" x="361256" y="5477583" />
+	<node id="0114" x="361570" y="5478004" />
+	<node id="0115" x="361453" y="5478274" />
+	<node id="0116" x="361874" y="5478983" />
+	<node id="0117" x="362500" y="5478915" />
+	<node id="0118" x="363174" y="5478504" />
+	
+	<node id="0119" x="357957" y="5473913" />
+	<node id="0120" x="358076" y="5474202" />
+	<node id="0121" x="358177" y="5474468" />
+	<node id="0122" x="358422" y="5474817" />
+	<node id="0123" x="358632" y="5475103" />
+	<node id="0124" x="358919" y="5475485" />
+	<node id="0125" x="359188" y="5476105" />	
+	<node id="0126" x="359409" y="5476610" />
+	<node id="0127" x="360102" y="5476879" />
+
+
+
+
+
+
+</nodes>
+<links capperiod="1:00:00">
+	
+	<link id="0101" from="0101" to="0102" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0102" from="0102" to="0103" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0103" from="0103" to="0104" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0104" from="0104" to="0105" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0105" from="0105" to="0106" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0106" from="0106" to="0107" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0107" from="0107" to="0108" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0108" from="0108" to="0109" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0109" from="0109" to="0110" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0110" from="0110" to="0112" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0112" from="0112" to="0113" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0113" from="0113" to="0114" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0114" from="0114" to="0115" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0115" from="0115" to="0116" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0116" from="0116" to="0117" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0117" from="0117" to="0118" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+
+	<link id="0119" from="0119" to="0120" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0120" from="0120" to="0121" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0121" from="0121" to="0122" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0122" from="0122" to="0123" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0123" from="0123" to="0124" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0124" from="0124" to="0125" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0125" from="0125" to="0126" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0126" from="0126" to="0127" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0127" from="0127" to="0112" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	
+	<link id="0101_r" from="0102" to="0101" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0102_r" from="0103" to="0102" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0103_r" from="0104" to="0103" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0104_r" from="0105" to="0104" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0105_r" from="0106" to="0105" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0106_r" from="0107" to="0106" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0107_r" from="0108" to="0107" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0108_r" from="0109" to="0108" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0109_r" from="0110" to="0109" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0110_r" from="0112" to="0110" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0112_r" from="0113" to="0112" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0113_r" from="0114" to="0113" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0114_r" from="0115" to="0114" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0115_r" from="0116" to="0115" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0116_r" from="0117" to="0116" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0117_r" from="0118" to="0117" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+
+	<link id="0119_r" from="0120" to="0119" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0120_r" from="0121" to="0120" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0121_r" from="0122" to="0121" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0122_r" from="0123" to="0122" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0123_r" from="0124" to="0123" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0124_r" from="0125" to="0124" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0125_r" from="0126" to="0125" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0126_r" from="0127" to="0126" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />
+	<link id="0127_r" from="0112" to="0127" length="500.00" capacity="2000" freespeed="100" modes="metro" permlanes="1" type="43" />	
+	
+</links>
+</network>
