@@ -9,7 +9,7 @@ import numpy.random as random
 print("Extracting map from file...")
 
 #To be completed
-mapfile = "/Users/paguyomar/Desktop/Densités/network.xml"
+mapfile = "/Users/paguyomar/Desktop/Densités/network.xml"
 
 source = open(mapfile, "r")
 
@@ -22,8 +22,10 @@ for i in s :
     s2=s2+i
 s=s2
 
+
 #We get rid of the first part of the string, and get the links and nodes
 s=s.split('<nodes>')[1]
+
 nodes, links = s.split('</nodes>')
 links = links.split('</links>')[0]
 links = links.split('<links')[1]
@@ -119,11 +121,11 @@ amplitude_x = x_max-x_min
 amplitude_y = y_max-y_min
 
 #To be chosen
-resolution = 1000
+resolution = 100
 
 
 # output
-chemin = "/Users/paguyomar/Desktop/Densités/plans.xml"
+chemin = "/Users/paguyomar/Desktop/Densités/plans.xml"
 
 #Full plan generation
 
@@ -381,31 +383,6 @@ for i in range(pop):
 #print_pop_schedules()
 
 ###Plan generation
-def incircle(x,y,xc,yc,R,w):
-    '''checks if the point (x,y) belongs to the circle'''
-    if (x-xc)**2+(y-yc)**2 <= R**2:
-        return w
-    
-    else :
-        return 0
-    
-
-def multiple_circle_fonction(x,y,centers):
-    tab = list()
-    for center in centers:
-        xc,yc,R,w=center[0],center[1],center[2],center[3]
-        tab.append(incircle(x,y,xc,yc,R,w))
-        
-    m = tab[0]
-    for i in range(len(tab)):
-        if tab[i]>m:
-            m=tab[i]
-    return m
-    
-
-
-
-
 def f(x1,y1,x2,y2,x):
     
     """Calculates the image of a scalar by a function the graph of which is a line"""
@@ -583,20 +560,196 @@ def dpop(x,y):
     
     
     
-def dwork(x,y):
-    '''Here we define the coordinates of the centers with their rays, as well as the importance of each circle'''
-    centers=[[x_min/3+2*x_max/3,y_min/3+2*y_max/3,2500,1],[x_max/4+3*x_min/4,y_max/4+3*y_min/4,2000,0.8]]
-    return multiple_circle_fonction(x,y,centers)
+shopsfile="/Users/paguyomar/Desktop/Densités/shops_final.txt"
+source = open(shopsfile,"r")
+    
+     
+#We get the content of the file
+s = source.readlines()
+for i in range(len(s)):
+    s[i]=s[i].split(",")
+    s[i][2]=s[i][2][:-1]
+    
+
+resolution3=50
+
+def shop_density():
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,resolution3)
+    Y = np.linspace(y_min,y_max,resolution3)
+    
+    shopdensity=np.zeros((resolution3-1,resolution3-1))
+
+
+    for shop in s:
+        x,y=float(shop[1]),float(shop[2])
+    
+        #Determines the square where the point (x,y) is
+        i,j=0,0
+                
+        while X[i+1]<x and i < resolution3-2:
+            i+=1            
+        
+        
+        while Y[j+1] < y and j < resolution3-2:
+            j+=1
+        
+        shopdensity[resolution3-2-j][i]+=1
+        
+        
+    somme = 0
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            somme+=shopdensity[i][j]
+            
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            shopdensity[i][j]=shopdensity[i][j]/somme
+    
+    
+    maxdensity=0
+
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            maxdensity=max(maxdensity,shopdensity[i][j])
+    
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            shopdensity[i][j]/=maxdensity
+    
+        
+    return(shopdensity)
+    
+
+
+shopdensity=shop_density()
+
 
 def dshop(x,y):
-    '''Here we define the coordinates of the centers with their rays, as well as the importance of each circle'''
-    centers=[[x_max/3+2*x_min/3,y_min/3+2*y_max/3,2500,1],[x_min/4+3*x_max/4,y_max/4+3*y_min/4,2000,0.8]]
-    return multiple_circle_fonction(x,y,centers)
+    
+    '''Returns the shop density in point (x,y)'''
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,resolution3)
+    Y = np.linspace(y_min,y_max,resolution3)
     
     
+    #Determines the square where the point (x,y) is
+    i,j=0,0
+            
+            
+    while X[i+1]<x and i < resolution3-2:
+        i+=1            
+    
+    
+    while Y[j+1] < y and j < resolution3-2:
+        j+=1
+
+
+    return(shopdensity[resolution3-2-j][i])
+    
+
+
+officefile="/Users/paguyomar/Desktop/Densités/offices_final.txt"
+source = open(officefile,"r")
+    
+     
+#We get the content of the file
+s2 = source.readlines()
+for i in range(len(s2)):
+    s2[i]=s2[i].split(",")
+    s2[i][2]=s2[i][2][:-1]
+    
+
+
+def office_density():
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,resolution3)
+    Y = np.linspace(y_min,y_max,resolution3)
+    
+    officedensity=np.zeros((resolution3-1,resolution3-1))
+
+
+    for office in s2:
+        x,y=float(office[1]),float(office[2])
+    
+        #Determines the square where the point (x,y) is
+        i,j=0,0
+                
+        while X[i+1]<x and i < resolution3-2:
+            i+=1            
+        
+        
+        while Y[j+1] < y and j < resolution3-2:
+            j+=1
+        
+        officedensity[resolution3-2-j][i]+=1
+    
+        
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            officedensity[i][j]=10*officedensity[i][j]+shopdensity[i][j]
+            
+        
+    somme = 0
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            somme+=officedensity[i][j]
+            
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            shopdensity[i][j]=officedensity[i][j]/somme
+        
+    
+    
+    maxdensity=0
+
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            maxdensity=max(maxdensity,officedensity[i][j])
+    
+    for i in range(resolution3-1):
+        for j in range(resolution3-1):
+            officedensity[i][j]/=maxdensity
+    
+    return(officedensity)
+    
+    
+  
+officedensity=office_density()
+  
+
+def dwork(x,y):
+    
+    '''Returns the shop density in point (x,y)'''
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,resolution3)
+    Y = np.linspace(y_min,y_max,resolution3)
+    
+    
+    
+    #Determines the square where the point (x,y) is
+    i,j=0,0
+            
+            
+    while X[i+1]<x and i < resolution3-2:
+        i+=1            
+    
+    
+    while Y[j+1] < y and j < resolution3-2:
+        j+=1
+
+
+    return(officedensity[resolution3-2-j][i])
+
+
+
 #Graphic output
 def density_graphs():
-    resolution2 = 100
+    resolution2 = 50
 
     X = np.linspace(x_min,x_max,resolution2)
     Y = np.linspace(y_min,y_max,resolution2)
@@ -637,7 +790,6 @@ def density_graphs():
     plt.show()
     return
 
-density_graphs()
 
 ####
 
