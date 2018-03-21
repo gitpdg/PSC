@@ -4,12 +4,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 import numpy.random as random
+import csv
+
 
 ##PARAMETERS
-print("Extracting map from file...")
 
 #To be completed
-mapfile = "/Users/paguyomar/Desktop/Densités/network.xml"
+mapfile = "road network.xml"
+file_work="work.csv"
+file_social= "social.csv"
+file_meals= "meals.csv"
+file_health= "healthcare.csv"
+file_educ= "education.csv"
+file_shop= "shopping.csv"
 
 source = open(mapfile, "r")
 
@@ -22,10 +29,8 @@ for i in s :
     s2=s2+i
 s=s2
 
-
 #We get rid of the first part of the string, and get the links and nodes
 s=s.split('<nodes>')[1]
-
 nodes, links = s.split('</nodes>')
 links = links.split('</links>')[0]
 links = links.split('<links')[1]
@@ -85,8 +90,6 @@ roads = list()
 for link in link_dict:
     roads.append([link, [num(link_dict[link][0]),num(link_dict[link][2])],[num(link_dict[link][1]),num(link_dict[link][3])]])
 
-print("Map in link_dict in the form [x1,y1,x2,y2].")
-
 
 def parameters():
     
@@ -120,12 +123,11 @@ x_min,x_max,y_min,y_max=parameters()
 amplitude_x = x_max-x_min
 amplitude_y = y_max-y_min
 
-#To be chosen
-resolution = 100
-
 
 # output
-chemin = "/Users/paguyomar/Desktop/Densités/plans.xml"
+# paramètres
+chemin_plans = "sample_population.xml"
+chemin_vehicles = "sample_emissionVehicles_v2.xml"
 
 #Full plan generation
 
@@ -134,7 +136,7 @@ chemin = "/Users/paguyomar/Desktop/Densités/plans.xml"
 ##DATA INPUT
 
 #Total population of the model
-pop = 50
+pop = 10
 #Number of person trips per day
 td=3.79
 #Total number of trips
@@ -147,9 +149,14 @@ Nt=int(pop*td)
 #going to work that start their trip between 6 am and 7 am, the average lenght of the 
 #activity in hours and its standard deviation in hours (exept for home)
 trip_purpose={}
-trip_purpose["work"]=(0.15,[0,0,0,0,0,0,0.1,0.2,0.3,0.2,0.1,0.1,0,0,0,0,0,0,0,0,0,0,0,0],8,1)
-trip_purpose["home"]=(0.348,None,None,None)
-trip_purpose["other"]=(0.502,[0,0,0,0,0,0,0,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0,0,0,0,0,0],2,1)
+trip_purpose["home"]=(0.35,None,None,None)
+trip_purpose["work"]=(0.18,[0.00,0.00,0.00,0.00,0.02,0.06,0.15,0.19,0.13,0.06,0.05,0.05,0.07,0.07,0.05,0.03,0.02,0.02,0.01,0.01,0.01,0.01,0.00,0.00],8,1)
+trip_purpose["school"]=(0.07,[0.00,0.00,0.00,0.00,0.00,0.00,0.10,0.38,0.21,0.04,0.04,0.02,0.02,0.02,0.02,0.02,0.02,0.04,0.04,0.02,0.00,0.00,0.00,0.00],7,1)
+trip_purpose["medical"]=(0.03,[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.08,0.08,0.12,0.08,0.12,0.08,0.12,0.12,0.08,0.08,0.04,0.00,0.00,0.00,0.00,0.00,0.00],2,1)
+trip_purpose["shops"]=(0.17,[0.00,0.00,0.00,0.00,0.00,0.01,0.01,0.02,0.04,0.07,0.09,0.09,0.09,0.09,0.10,0.09,0.08,0.08,0.05,0.04,0.02,0.01,0.01,0.00],2,2)
+trip_purpose["social"]=(0.1,[0.00,0.00,0.00,0.00,0.00,0.01,0.02,0.03,0.05,0.07,0.07,0.05,0.06,0.06,0.07,0.08,0.10,0.11,0.11,0.07,0.03,0.03,0.01,0.00],2,3)
+trip_purpose["meals"]=(0.05,[0.00,0.00,0.00,0.00,0.00,0.02,0.02,0.04,0.04,0.04,0.04,0.15,0.17,0.07,0.06,0.04,0.07,0.09,0.07,0.06,0.02,0.02,0.00,0.00],1,1)
+trip_purpose["other"]=(0.05,[0.01,0.00,0.00,0.00,0.02,0.01,0.03,0.11,0.09,0.07,0.06,0.06,0.05,0.05,0.07,0.11,0.08,0.07,0.06,0.03,0.01,0.00,0.00,0.01],2,2)
 
 len_max_activity = max(len(cle) for cle in trip_purpose)
 
@@ -183,7 +190,7 @@ def activity_start_time(location):
     #defined in the data input
     rand=random.random()
     i=0
-    while start_time_cdf[location][i]<rand:
+    while start_time_cdf[location][i]<rand and i<23:
         i=i+1
     #The activity began during the time frame (ih, i+1h)
     return int(3600*i+random.random()*3600)
@@ -270,7 +277,8 @@ def fix_schedule(person):
     person2=[]
     for trip in person:
         person2.append([item for item in trip])
-    person2[0][0]="home"
+    if len(person2)!=0:
+        person2[0][0]="home"
     for i in range(1,len(person2)):
         person2[i][0]=person2[i-1][3]
     person=[tuple(trip) for trip in person2]
@@ -311,8 +319,8 @@ def print_pop_schedules():
     i=1
     for person in people:
         print("Person n°"+str(i))
-        print("---------------------------------------------")
-        print("trip start | trip            | activity ends")
+        print("-----------------------------------------------")
+        print("trip start | trip                | activity ends")
         print(trips_to_string(person))
         i=i+1
     return  
@@ -366,6 +374,77 @@ while(trips_todo["other"]>0):
     #the list of people to randomize the trip allocation
     people=shuffle_people(people)
 
+while(trips_todo["school"]>0):
+    trip=generate_trip("school")
+    i=0
+    person = people[i]
+    while(i<pop-1):
+        if compatible(person,trip):
+            add_trip_to_schedule(trip,person)
+        break
+        i+i+1
+        person = people[i]
+    #If we end up here, the trip couldn't be assigned to a person. We shuffle
+    #the list of people to randomize the trip allocation
+    people=shuffle_people(people)
+
+while(trips_todo["medical"]>0):
+    trip=generate_trip("medical")
+    i=0
+    person = people[i]
+    while(i<pop-1):
+        if compatible(person,trip):
+            add_trip_to_schedule(trip,person)
+        break
+        i+i+1
+        person = people[i]
+    #If we end up here, the trip couldn't be assigned to a person. We shuffle
+    #the list of people to randomize the trip allocation
+    people=shuffle_people(people)
+    
+while(trips_todo["shops"]>0):
+    trip=generate_trip("shops")
+    i=0
+    person = people[i]
+    while(i<pop-1):
+        if compatible(person,trip):
+            add_trip_to_schedule(trip,person)
+        break
+        i+i+1
+        person = people[i]
+    #If we end up here, the trip couldn't be assigned to a person. We shuffle
+    #the list of people to randomize the trip allocation
+    people=shuffle_people(people)
+
+while(trips_todo["social"]>0):
+    trip=generate_trip("social")
+    i=0
+    person = people[i]
+    while(i<pop-1):
+        if compatible(person,trip):
+            add_trip_to_schedule(trip,person)
+        break
+        i+i+1
+        person = people[i]
+    #If we end up here, the trip couldn't be assigned to a person. We shuffle
+    #the list of people to randomize the trip allocation
+    people=shuffle_people(people)
+
+while(trips_todo["meals"]>0):
+    trip=generate_trip("meals")
+    i=0
+    person = people[i]
+    while(i<pop-1):
+        if compatible(person,trip):
+            add_trip_to_schedule(trip,person)
+        break
+        i+i+1
+        person = people[i]
+    #If we end up here, the trip couldn't be assigned to a person. We shuffle
+    #the list of people to randomize the trip allocation
+    people=shuffle_people(people)
+
+
 #Finally, we include all trips back to home
 #Note : it is very important that all of the other trips be planned before
 #adding trips to home to people's schedule
@@ -383,6 +462,11 @@ for i in range(pop):
 #print_pop_schedules()
 
 ###Plan generation
+#To be chosen
+respop = 100
+reswork= 100
+
+#Auxiliary functions
 def f(x1,y1,x2,y2,x):
     
     """Calculates the image of a scalar by a function the graph of which is a line"""
@@ -398,44 +482,44 @@ def surroundings(X,Y,x1,x2,y1,y2):
     ymin,ymax=min(y1,y2),max(y1,y2)
     
         
-    while X[idown+1]<x1 and idown < resolution-2:
+    while X[idown+1]<x1 and idown < respop-2:
         idown+=1
 
     
-    while x2 >= X[iup] and iup < resolution-2:
+    while x2 >= X[iup] and iup < respop-2:
         iup+=1            
     
     
-    while Y[jdown+1] < ymin and jdown < resolution-2:
+    while Y[jdown+1] < ymin and jdown < respop-2:
         jdown+=1
     
 
-    while ymax >= Y[jup] and jup < resolution-2:
+    while ymax >= Y[jup] and jup < respop-2:
         jup+=1
 
     return(idown,iup,jdown,jup)
 
 
     
-    
-def roaddensity():
+#Road density
+def road_density():
     
     """Returns a matrix with the road density in each square"""
     
     
     #Cutting the city into small squares
-    X = np.linspace(x_min,x_max,resolution)
-    Y = np.linspace(y_min,y_max,resolution)
+    X = np.linspace(x_min,x_max,respop)
+    Y = np.linspace(y_min,y_max,respop)
         
     
     #Density matrix
-    road_density=np.zeros((resolution-1,resolution-1))
+    roaddensity=np.zeros((respop-1,respop-1))
 
     
     for road in link_dict:
         
         #Visited squares matrix
-        alreadyseen=np.zeros((resolution-1,resolution-1))
+        alreadyseen=np.zeros((respop-1,respop-1))
 
         #Coordinates of the beginning and the end of the road
         x1,x2=float(link_dict[road][0]),float(link_dict[road][2])
@@ -457,14 +541,14 @@ def roaddensity():
                     
                 if ord >= Y[j] and ord<=Y[j+1]:
                     
-                    if alreadyseen[resolution-2-j][i]==0:
-                        road_density[resolution-2-j][i]+=1
-                        alreadyseen[resolution-2-j][i]=1
+                    if alreadyseen[respop-2-j][i]==0:
+                        roaddensity[respop-2-j][i]+=1
+                        alreadyseen[respop-2-j][i]=1
                                 
                     
-                    if alreadyseen[resolution-2-j][i-1]==0:
-                        road_density[resolution-2-j][i-1]+=1
-                        alreadyseen[resolution-2-j][i-1]=1
+                    if alreadyseen[respop-2-j][i-1]==0:
+                        roaddensity[respop-2-j][i-1]+=1
+                        alreadyseen[respop-2-j][i-1]=1
         
         
         
@@ -478,30 +562,30 @@ def roaddensity():
                 
                 if absc >= X[i] and absc <= X[i+1]:
                     
-                    if alreadyseen[resolution-2-j][i]==0:
-                        road_density[resolution-2-j][i]+=1
-                        alreadyseen[resolution-2-j][i]=1
+                    if alreadyseen[respop-2-j][i]==0:
+                        roaddensity[respop-2-j][i]+=1
+                        alreadyseen[respop-2-j][i]=1
                                 
                     
-                    if alreadyseen[resolution-2-j+1][i]==0:
-                        road_density[resolution-2-j+1][i]+=1
-                        alreadyseen[resolution-2-j+1][i]=1
+                    if alreadyseen[respop-2-j+1][i]==0:
+                        roaddensity[respop-2-j+1][i]+=1
+                        alreadyseen[respop-2-j+1][i]=1
         
         
 
-    #Final road_density
+    #Final roaddensity
     somme = 0
-    for i in range(resolution-1):
-        for j in range(resolution-1):
-            somme+=road_density[i][j]
+    for i in range(respop-1):
+        for j in range(respop-1):
+            somme+=roaddensity[i][j]
             
-    for i in range(resolution-1):
-        for j in range(resolution-1):
-            road_density[i][j]=road_density[i][j]/somme
+    for i in range(respop-1):
+        for j in range(respop-1):
+            roaddensity[i][j]=roaddensity[i][j]/somme
         
     
     
-    return road_density
+    return roaddensity
 
 
 def roadtopop(x):
@@ -512,247 +596,509 @@ def roadtopop(x):
 
 
 #Population density
-def popdensity():
+def pop_density():
     
     """Calculates the matrix of population density with the road density"""
-    road_density=roaddensity()
+    roaddensity=road_density()
     
-    l=len(road_density[0])
+    l=len(roaddensity[0])
     
-    pop_density=np.zeros((l,l))
+    popdensity=np.zeros((l,l))
     
     maxdensity=0
 
     for i in range(l):
         for j in range(l):
-            pop_density[i][j]=roadtopop(road_density[i][j])
-            maxdensity=max(maxdensity,pop_density[i][j])
+            popdensity[i][j]=roadtopop(roaddensity[i][j])
+            maxdensity=max(maxdensity,popdensity[i][j])
     
     for i in range(l):
         for j in range(l):
-            pop_density[i][j]/=maxdensity
+            popdensity[i][j]/=maxdensity
     
-    return(pop_density)
+    return(popdensity)
+    
+
+
+#Work density
+
+workfile =open(file_work,"r",encoding='utf-8-sig')
+work=csv.reader(workfile,delimiter=";")
+
+def work_density():
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    workdensity=np.zeros((reswork-1,reswork-1))
+    
+    for w in work:
+        
+        x,y,weight=float(w[0]),float(w[1]),float(w[4])
+    
+        #Determines the square where the point (x,y) is
+        i,j=0,0
+                
+        while X[i+1]<x and i < reswork-2:
+            i+=1            
+        
+        
+        while Y[j+1] < y and j < reswork-2:
+            j+=1
+        
+        workdensity[reswork-2-j][i]+=weight
+    
+    
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            if workdensity[i][j] != 0:
+                workdensity[i][j]=math.log(workdensity[i][j])
+        
+        
+    maxdensity=0
+
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            maxdensity=max(maxdensity,workdensity[i][j])
+            
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            workdensity[i][j]/=maxdensity
+    
+    return(workdensity)
+    
+    
+
+
+#Education density
+
+educfile =open(file_educ,"r",encoding='utf-8-sig')
+educ=csv.reader(educfile,delimiter=";")
+
+
+def educ_density():
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    educdensity=np.zeros((reswork-1,reswork-1))
+    
+    for w in educ:
+        
+        x,y,weight=float(w[0]),float(w[1]),float(w[4])
+    
+        #Determines the square where the point (x,y) is
+        i,j=0,0
+                
+        while X[i+1]<x and i < reswork-2:
+            i+=1            
+        
+        
+        while Y[j+1] < y and j < reswork-2:
+            j+=1
+        
+        educdensity[reswork-2-j][i]+=weight
+    
+    
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            if educdensity[i][j] != 0:
+                educdensity[i][j]=math.log(educdensity[i][j])
+        
+        
+    maxdensity=0
+
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            maxdensity=max(maxdensity,educdensity[i][j])
+            
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            educdensity[i][j]/=maxdensity
+    
+    return(educdensity)    
+    
+
+#Healthcare density
+
+healthfile =open(file_health,"r",encoding='utf-8-sig')
+health=csv.reader(healthfile,delimiter=";")
 
 
 
+def health_density():
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    healthdensity=np.zeros((reswork-1,reswork-1))
+    
+    for w in health:
+        
+        x,y,weight=float(w[0]),float(w[1]),float(w[4])
+    
+        #Determines the square where the point (x,y) is
+        i,j=0,0
+                
+        while X[i+1]<x and i < reswork-2:
+            i+=1            
+        
+        
+        while Y[j+1] < y and j < reswork-2:
+            j+=1
+        
+        healthdensity[reswork-2-j][i]+=weight
+    
+    
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            if  healthdensity[i][j] != 0:
+                healthdensity[i][j]=math.log(healthdensity[i][j])
+        
+        
+    maxdensity=0
 
-#Densities of work, population and shopping
-pop_density=popdensity()
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            maxdensity=max(maxdensity,healthdensity[i][j])
+            
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            healthdensity[i][j]/=maxdensity
+    
+    return(healthdensity)
+
+
+
+#Meals density
+
+mealsfile =open(file_meals,"r",encoding='utf-8-sig')
+meals=csv.reader(mealsfile,delimiter=";")
+
+
+
+def meals_density():
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    mealsdensity=np.zeros((reswork-1,reswork-1))
+    
+    for w in meals:
+        
+        x,y,weight=float(w[0]),float(w[1]),float(w[4])
+    
+    
+        #Determines the square where the point (x,y) is
+        i,j=0,0
+                
+        while X[i+1]<x and i < reswork-2:
+            i+=1            
+        
+        
+        while Y[j+1] < y and j < reswork-2:
+            j+=1
+        
+        mealsdensity[reswork-2-j][i]+=weight
+    
+    
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            if mealsdensity[i][j] != 0:
+                mealsdensity[i][j]=math.log(mealsdensity[i][j])
+        
+        
+    maxdensity=0
+
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            maxdensity=max(maxdensity,mealsdensity[i][j])
+            
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            mealsdensity[i][j]/=maxdensity
+    
+    return(mealsdensity)
+
+
+
+#Social density
+socialfile =open(file_social,"r",encoding='utf-8-sig')
+social=csv.reader(socialfile,delimiter=";")
+
+
+
+def social_density():
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    socialdensity=np.zeros((reswork-1,reswork-1))
+    
+    for w in social:
+        
+        x,y,weight=float(w[0]),float(w[1]),float(w[4])
+    
+    
+        #Determines the square where the point (x,y) is
+        i,j=0,0
+                
+        while X[i+1]<x and i < reswork-2:
+            i+=1            
+        
+        
+        while Y[j+1] < y and j < reswork-2:
+            j+=1
+        
+        socialdensity[reswork-2-j][i]+=weight
+    
+    
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            if socialdensity[i][j] != 0:
+                socialdensity[i][j]=math.log(socialdensity[i][j])
+        
+        
+    maxdensity=0
+
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            maxdensity=max(maxdensity,socialdensity[i][j])
+            
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            socialdensity[i][j]/=maxdensity
+    
+    return(socialdensity)
+    
+    
+    
+#Shopping density
+
+shoppingfile =open(file_shop,"r",encoding='utf-8-sig')
+shopping=csv.reader(shoppingfile,delimiter=";")
+
+
+
+def shopping_density():
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    shoppingdensity=np.zeros((reswork-1,reswork-1))
+    
+    for w in shopping:
+        
+        x,y,weight=float(w[0]),float(w[1]),float(w[4])
+    
+    
+        #Determines the square where the point (x,y) is
+        i,j=0,0
+                
+        while X[i+1]<x and i < reswork-2:
+            i+=1            
+        
+        
+        while Y[j+1] < y and j < reswork-2:
+            j+=1
+        
+        shoppingdensity[reswork-2-j][i]+=weight
+    
+    
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            if shoppingdensity[i][j] != 0:
+                shoppingdensity[i][j]=math.log(shoppingdensity[i][j])
+        
+        
+    maxdensity=0
+
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            maxdensity=max(maxdensity,shoppingdensity[i][j])
+            
+    for i in range(reswork-1):
+        for j in range(reswork-1):
+            shoppingdensity[i][j]/=maxdensity
+    
+    return(shoppingdensity)
+
+
+
+#Densities of work, population and other activities
+popdensity=pop_density()
+workdensity=work_density()
+educdensity=educ_density()
+healthdensity=health_density()
+mealsdensity=meals_density()
+socialdensity=social_density()
+shoppingdensity=shopping_density()
+
+workfile.close()  
+educfile.close()
+healthfile.close()
+mealsfile.close()
+socialfile.close()
+shoppingfile.close()
+
 
 def dpop(x,y):
     '''Returns the population density in point (x,y)'''
     
     #Cutting the city into small squares
-    X = np.linspace(x_min,x_max,resolution)
-    Y = np.linspace(y_min,y_max,resolution)
+    X = np.linspace(x_min,x_max,respop)
+    Y = np.linspace(y_min,y_max,respop)
     
     #Determines the square where the point (x,y) is
     i,j=0,0
             
-    while X[i+1]<x and i < resolution-2:
+    while X[i+1]<x and i < respop-2:
         i+=1            
 
-    while Y[j+1] < y and j < resolution-2:
+    while Y[j+1] < y and j < respop-2:
         j+=1
 
-    return(pop_density[resolution-2-j][i])
+    return(popdensity[respop-2-j][i])
     
     
-    
-shopsfile="/Users/paguyomar/Desktop/Densités/shops_final.txt"
-source = open(shopsfile,"r")
-    
-     
-#We get the content of the file
-s = source.readlines()
-for i in range(len(s)):
-    s[i]=s[i].split(",")
-    s[i][2]=s[i][2][:-1]
-    
-
-resolution3=50
-
-def shop_density():
-    
-    #Cutting the city into small squares
-    X = np.linspace(x_min,x_max,resolution3)
-    Y = np.linspace(y_min,y_max,resolution3)
-    
-    shopdensity=np.zeros((resolution3-1,resolution3-1))
-
-
-    for shop in s:
-        x,y=float(shop[1]),float(shop[2])
-    
-        #Determines the square where the point (x,y) is
-        i,j=0,0
-                
-        while X[i+1]<x and i < resolution3-2:
-            i+=1            
-        
-        
-        while Y[j+1] < y and j < resolution3-2:
-            j+=1
-        
-        shopdensity[resolution3-2-j][i]+=1
-        
-        
-    somme = 0
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            somme+=shopdensity[i][j]
-            
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            shopdensity[i][j]=shopdensity[i][j]/somme
-    
-    
-    maxdensity=0
-
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            maxdensity=max(maxdensity,shopdensity[i][j])
-    
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            shopdensity[i][j]/=maxdensity
-    
-        
-    return(shopdensity)
-    
-
-
-shopdensity=shop_density()
-
-
-def dshop(x,y):
-    
-    '''Returns the shop density in point (x,y)'''
-    
-    #Cutting the city into small squares
-    X = np.linspace(x_min,x_max,resolution3)
-    Y = np.linspace(y_min,y_max,resolution3)
-    
-    
-    #Determines the square where the point (x,y) is
-    i,j=0,0
-            
-            
-    while X[i+1]<x and i < resolution3-2:
-        i+=1            
-    
-    
-    while Y[j+1] < y and j < resolution3-2:
-        j+=1
-
-
-    return(shopdensity[resolution3-2-j][i])
-    
-
-
-officefile="/Users/paguyomar/Desktop/Densités/offices_final.txt"
-source = open(officefile,"r")
-    
-     
-#We get the content of the file
-s2 = source.readlines()
-for i in range(len(s2)):
-    s2[i]=s2[i].split(",")
-    s2[i][2]=s2[i][2][:-1]
-    
-
-
-def office_density():
-    
-    #Cutting the city into small squares
-    X = np.linspace(x_min,x_max,resolution3)
-    Y = np.linspace(y_min,y_max,resolution3)
-    
-    officedensity=np.zeros((resolution3-1,resolution3-1))
-
-
-    for office in s2:
-        x,y=float(office[1]),float(office[2])
-    
-        #Determines the square where the point (x,y) is
-        i,j=0,0
-                
-        while X[i+1]<x and i < resolution3-2:
-            i+=1            
-        
-        
-        while Y[j+1] < y and j < resolution3-2:
-            j+=1
-        
-        officedensity[resolution3-2-j][i]+=1
-    
-        
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            officedensity[i][j]=10*officedensity[i][j]+shopdensity[i][j]
-            
-        
-    somme = 0
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            somme+=officedensity[i][j]
-            
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            shopdensity[i][j]=officedensity[i][j]/somme
-        
-    
-    
-    maxdensity=0
-
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            maxdensity=max(maxdensity,officedensity[i][j])
-    
-    for i in range(resolution3-1):
-        for j in range(resolution3-1):
-            officedensity[i][j]/=maxdensity
-    
-    return(officedensity)
-    
-    
-  
-officedensity=office_density()
-  
 
 def dwork(x,y):
     
-    '''Returns the shop density in point (x,y)'''
+    '''Returns the work density in point (x,y)'''
     
     #Cutting the city into small squares
-    X = np.linspace(x_min,x_max,resolution3)
-    Y = np.linspace(y_min,y_max,resolution3)
-    
-    
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
     
     #Determines the square where the point (x,y) is
     i,j=0,0
             
-            
-    while X[i+1]<x and i < resolution3-2:
+    while X[i+1]<x and i < reswork-2:
         i+=1            
     
-    
-    while Y[j+1] < y and j < resolution3-2:
+    while Y[j+1] < y and j < reswork-2:
         j+=1
+        
+    return(workdensity[reswork-2-j][i])
+    
 
 
-    return(officedensity[resolution3-2-j][i])
+def deduc(x,y):
+    
+    '''Returns the educ density in point (x,y)'''
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    #Determines the square where the point (x,y) is
+    i,j=0,0
+            
+    while X[i+1]<x and i < reswork-2:
+        i+=1            
+    
+    while Y[j+1] < y and j < reswork-2:
+        j+=1
+        
+    return(educdensity[reswork-2-j][i])
 
 
 
+def dhealth(x,y):
+    
+    '''Returns the healthcare density in point (x,y)'''
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    #Determines the square where the point (x,y) is
+    i,j=0,0
+            
+    while X[i+1]<x and i < reswork-2:
+        i+=1            
+    
+    while Y[j+1] < y and j < reswork-2:
+        j+=1
+        
+    return(healthdensity[reswork-2-j][i])
+    
+
+def dmeals(x,y):
+    
+    '''Returns the meals density in point (x,y)'''
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    #Determines the square where the point (x,y) is
+    i,j=0,0
+            
+    while X[i+1]<x and i < reswork-2:
+        i+=1            
+    
+    while Y[j+1] < y and j < reswork-2:
+        j+=1
+        
+    return(mealsdensity[reswork-2-j][i])
+    
+    
+def dsocial(x,y):
+    
+    '''Returns the social density in point (x,y)'''
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    #Determines the square where the point (x,y) is
+    i,j=0,0
+            
+    while X[i+1]<x and i < reswork-2:
+        i+=1            
+    
+    while Y[j+1] < y and j < reswork-2:
+        j+=1
+        
+    return(socialdensity[reswork-2-j][i])
+    
+    
+
+def dshop(x,y):
+    
+    '''Returns the social density in point (x,y)'''
+    
+    #Cutting the city into small squares
+    X = np.linspace(x_min,x_max,reswork)
+    Y = np.linspace(y_min,y_max,reswork)
+    
+    #Determines the square where the point (x,y) is
+    i,j=0,0
+            
+    while X[i+1]<x and i < reswork-2:
+        i+=1            
+    
+    while Y[j+1] < y and j < reswork-2:
+        j+=1
+        
+    return(shoppingdensity[reswork-2-j][i])
+
+
+
+    
 #Graphic output
 def density_graphs():
-    resolution2 = 50
+    resolution = 100
 
-    X = np.linspace(x_min,x_max,resolution2)
-    Y = np.linspace(y_min,y_max,resolution2)
+    X = np.linspace(x_min,x_max,resolution)
+    Y = np.linspace(y_min,y_max,resolution)
     
 
     Z=list()
@@ -774,7 +1120,50 @@ def density_graphs():
             
     f, ax = plt.subplots()
     ax.set_title('Work density')
-    ax.imshow(Z,interpolation='none',extent = (x_min,x_max,y_min,y_max))
+    ax.imshow(Z,interpolation='bicubic',extent = (x_min,x_max,y_min,y_max))
+    
+    Z=list()
+    for y in Y:
+        Z.insert(0,[])
+        for x in X:
+            Z[0].append(deduc(x,y))
+            
+    f, ax = plt.subplots()
+    ax.set_title('Education density')
+    ax.imshow(Z,interpolation='bicubic',extent = (x_min,x_max,y_min,y_max))
+    
+    
+    Z=list()
+    for y in Y:
+        Z.insert(0,[])
+        for x in X:
+            Z[0].append(dhealth(x,y))
+            
+    f, ax = plt.subplots()
+    ax.set_title('Healthcare density')
+    ax.imshow(Z,interpolation='bicubic',extent = (x_min,x_max,y_min,y_max))
+    
+    
+    Z=list()
+    for y in Y:
+        Z.insert(0,[])
+        for x in X:
+            Z[0].append(dmeals(x,y))
+            
+    f, ax = plt.subplots()
+    ax.set_title('Meals density')
+    ax.imshow(Z,interpolation='bicubic',extent = (x_min,x_max,y_min,y_max))
+    
+    
+    Z=list()
+    for y in Y:
+        Z.insert(0,[])
+        for x in X:
+            Z[0].append(dsocial(x,y))
+            
+    f, ax = plt.subplots()
+    ax.set_title('Social density')
+    ax.imshow(Z,interpolation='bicubic',extent = (x_min,x_max,y_min,y_max))
     
     
     Z=list()
@@ -784,26 +1173,86 @@ def density_graphs():
             Z[0].append(dshop(x,y))
             
     f, ax = plt.subplots()
-    ax.set_title('Shopping and leisure density')
-    ax.imshow(Z,interpolation='none',extent = (x_min,x_max,y_min,y_max))
+    ax.set_title('Shopping density')
+    ax.imshow(Z,interpolation='bicubic',extent = (x_min,x_max,y_min,y_max))
     
     plt.show()
     return
 
 
-####
-
-
-def creation_plans():
+def creation_plans_vehicles():
     
-    f = open(chemin, "w")
-    f.write('<?xml version="1.0" ?>\n')
-    f.write('<!DOCTYPE plans SYSTEM "http://www.matsim.org/files/dtd/plans_v4.dtd">\n\n')    
-    f.write('<plans>\n\n')
+    f1 = open(chemin_plans, "w")
+    f1.write('<?xml version="1.0" ?>\n')
+    f1.write('<!DOCTYPE plans SYSTEM "http://www.matsim.org/files/dtd/plans_v4.dtd">\n\n')    
+    f1.write('<plans>\n\n')
+    
+    
+    
+    f2 = open(chemin_vehicles, "w")
+    
+    f2.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n")
+    
+    f2.write('<vehicleDefinitions xmlns="http://www.matsim.org/files/dtd"\n')
+    f2.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n')
+    f2.write(' xsi:schemaLocation="http://www.matsim.org/files/dtd http://www.matsim.org/files/dtd/vehicleDefinitions_v1.0.xsd">\n')
+    f2.write('	<vehicleType id="car_average">\n')
+    f2.write('		<description>\n')
+    f2.write('			BEGIN_EMISSIONSPASSENGER_CAR;average;average;averageEND_EMISSIONS\n')
+    f2.write('		</description>\n')
+    f2.write('		<length meter="7.5"/>\n')
+    f2.write('		<width meter="1.0"/>\n\n')
+    
+    f2.write('		<accessTime secondsPerPerson="1.0"/>\n')
+    f2.write('		<egressTime secondsPerPerson="1.0"/>\n')
+    f2.write('		<doorOperation mode="serial"/>\n')
+    f2.write('	</vehicleType>\n')
+    f2.write('	<vehicleType id="car_petrol">\n')
+    f2.write('		<description>\n')
+    f2.write('			BEGIN_EMISSIONSPASSENGER_CAR;petrol (4S);&gt;=2L;PC-P-Euro-1END_EMISSIONS\n')
+    f2.write('		</description>\n')
+    f2.write('		<length meter="7.5"/>\n')
+    f2.write('		<width meter="1.0"/>\n\n')
+    
+    f2.write('		<accessTime secondsPerPerson="1.0"/>\n')
+    f2.write('		<egressTime secondsPerPerson="1.0"/>\n')
+    f2.write('		<doorOperation mode="serial"/>\n')
+    f2.write('	</vehicleType>\n')
+    f2.write('	<vehicleType id="car_diesel">\n')
+    f2.write('		<description>\n')
+    f2.write('			BEGIN_EMISSIONSPASSENGER_CAR;diesel;&lt;1,4L;PC-D-Euro-3END_EMISSIONS\n')
+    f2.write('		</description>\n')
+    f2.write('		<length meter="7.5"/>\n')
+    f2.write('		<width meter="1.0"/>\n\n')
+    		
+    f2.write('		<accessTime secondsPerPerson="1.0"/>\n')
+    f2.write('		<egressTime secondsPerPerson="1.0"/>\n')
+    f2.write('		<doorOperation mode="serial"/>\n')
+    f2.write('	</vehicleType>\n')
+   
+    f2.write('	<vehicleType id="bike">\n')
+    f2.write('		<description>\n')
+    f2.write('			BEGIN_EMISSIONSZERO_EMISSION_VEHICLE;average;average;averageEND_EMISSIONS\n')
+    f2.write('		</description>\n')
+    f2.write('		<length meter="2.0"/>\n')
+    f2.write('		<width meter="1.0"/>\n\n')
+    		
+    f2.write('		<accessTime secondsPerPerson="1.0"/>\n')
+    f2.write('		<egressTime secondsPerPerson="1.0"/>\n')
+    f2.write('		<doorOperation mode="serial"/>\n')
+    f2.write("	</vehicleType>\n\n")
+
     
     for i in range(pop) :
         
+        legmode = leg_mode()
+        vehicle = legmode
+        if (legmode == '\"car\"') :
+            vehicle = car_type()
+            
+        
         plan = people[i]
+        f2.write("       <vehicle id=\""+ str(i) +"\" type=" + vehicle + "/>\n")
         
         # génération des lieux et horaires
         x_home, y_home = choix_spatial(dpop)
@@ -816,30 +1265,56 @@ def creation_plans():
         l.append('<person id="'+str(i)+'">')
         l.append('      <plan>')
         #On fait le premier trajet de la journée
-        l.append('           <act type="h" x="'+ str(x_home) +'" y="'+ str(y_home)+ '" start_time="00:00:00" end_time="'+ time_format(first_act_start_time) +'" />')
-        l.append('           <leg mode="car" />')
+        l.append('           <act type="home" x="'+ str(x_home) +'" y="'+ str(y_home)+ '" start_time="00:00:00" end_time="'+ time_format(first_act_start_time) +'" />')
+        l.append("           <leg mode=" + legmode + "/>\n")
         for i in range(len(plan)-1):
             dest=plan[i][3]
             if dest=='work':
-                l.append('           <act type="w" x="'+ str(x_work) +'" y="'+ str(y_work)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
-                l.append('           <leg mode="car" />')
+                l.append('           <act type="work" x="'+ str(x_work) +'" y="'+ str(y_work)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
+                l.append("           <leg mode=" + legmode + "/>\n")
             if dest=='home':
-                l.append('           <act type="h" x="'+ str(x_home) +'" y="'+ str(y_home)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
-                l.append('           <leg mode="car" />')
+                l.append('           <act type="home" x="'+ str(x_home) +'" y="'+ str(y_home)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
+                l.append("           <leg mode=" + legmode + "/>\n")
             if dest=='other':
+                x_other, y_other = choix_spatial(dpop)
+                l.append('           <act type="other" x="'+ str(x_other) +'" y="'+ str(y_other)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
+                l.append("           <leg mode=" + legmode + "/>\n")
+            if dest=='social':
+                x_other, y_other = choix_spatial(dsocial)
+                l.append('           <act type="social" x="'+ str(x_other) +'" y="'+ str(y_other)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
+                l.append("           <leg mode=" + legmode + "/>\n")
+            if dest=='meals':
+                x_other, y_other = choix_spatial(dmeals)
+                l.append('           <act type="meals" x="'+ str(x_other) +'" y="'+ str(y_other)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
+                l.append("           <leg mode=" + legmode + "/>\n")
+            if dest=='medical':
+                x_other, y_other = choix_spatial(dhealth)
+                l.append('           <act type="medical" x="'+ str(x_other) +'" y="'+ str(y_other)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
+                l.append("           <leg mode=" + legmode + "/>\n")
+            if dest=='school':
+                x_other, y_other = choix_spatial(deduc)
+                l.append('           <act type="school" x="'+ str(x_other) +'" y="'+ str(y_other)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
+                l.append("           <leg mode=" + legmode + "/>\n")
+            if dest=='shops':
                 x_other, y_other = choix_spatial(dshop)
-                l.append('           <act type="o" x="'+ str(x_other) +'" y="'+ str(y_other)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
-                l.append('           <leg mode="car" />')
-            
-            
+                l.append('           <act type="shops" x="'+ str(x_other) +'" y="'+ str(y_other)+ '" start_time="'+ time_format(plan[i][1]) +'" dur="'+ time_format(plan[i][2]) +'" />')
+                l.append("           <leg mode=" + legmode + "/>\n")
+           
         #Retour à la maison
-        l.append('           <act type="h" x="'+ str(x_home) +'" y="'+ str(y_home)+ '" start_time="'+ time_format(last_act_start_time) +'" />')
+        l.append('           <act type="home" x="'+ str(x_home) +'" y="'+ str(y_home)+ '" start_time="'+ time_format(last_act_start_time) +'" />')
         l.append('      </plan>')
         l.append('</person>')
-        f.write("\n".join(l)+"\n")
+        f1.write("\n".join(l)+"\n")
+        
     
-    f.write('\n</plans>')
-    f.close()
+    f1.write('\n</plans>')
+    f1.close()
+    f2.write("</vehicleDefinitions>")   
+    f2.close()
+    
+
+
+
 
 def dpoptoy(x,y):
     """ définie sur [-1000,1000]^2, de norme infinie inférieure à 1"""
@@ -883,5 +1358,18 @@ def time_format(secondes):
         time += "0"+str(secondes)
     return time
 
-density_graphs()
-creation_plans()
+def car_type():
+    rand=random.randint(1,4)
+    if (rand == 1 ) : return("\"car_average\"")
+    if (rand == 2 ) : return("\"car_petrol\"")
+    if (rand == 3 ) : return("\"car_diesel\"")  
+
+def leg_mode() :
+    rand=random.randint(1,3)
+    if (rand == 1 ) : return("\"car\"")
+    if (rand == 2 ) : return("\"bike\"")
+
+
+#density_graphs()
+print_pop_schedules()
+#creation_plans_vehicles()
