@@ -295,12 +295,8 @@ def impact_PM(pop,c):
     return out
 
 
-def costs_to_csv():
-    
-    pop =10000
-    c_NO2=80
-    c_PM=20
-    
+def costs_to_csv(pop,c_NO2,c_PM):
+      
     file = open(file_path,"w") 
  
     header = "Pollutant;Studied impact;Concertration-response function (for an increase of 1µg/m^3);Uncertainty in CR function;Case incidence;Uncertainty in case incidence;Unit cost in thousands of euros;Calculated cost;Uncertainty in calculated cost\n"
@@ -309,4 +305,4 @@ def costs_to_csv():
     file.close() 
     return
 
-costs_to_csv()
+costs_to_csv(10000,80,20)
