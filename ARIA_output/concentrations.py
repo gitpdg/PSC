@@ -14,14 +14,14 @@ import matplotlib.patches as patches
 ###CONFIG
 
 #input
-file = "Documents/exemples de formats/concentrations.csv" #this is an ARIA output
-listing = "Documents/exemples de formats/listing.lis" #this is an ARIA output
-#the distance (in 100m ?) x and y between two sensors
-dx=2
-dy=2
+file = "Documents/base_case/output/new-recept.csv" #this is an ARIA output
+listing = "Documents/base_case/output/scratch.txt" #this is an ARIA output
+#the distance (in km) x and y between two sensors
+dx=1.3
+dy=1.3
 
 #output
-mean_file = "Documents/exemples de formats/mean_file.txt"
+mean_file = "Documents/base_case/output/mean_file.txt"
 
 ##PRELEMINARY FUNCTIONS
 
@@ -59,7 +59,7 @@ def file_to_dict():
     header = source.readline()
     header=header.split(";")
 
-    nb_receptors = (len(header)-6)//3 #the 6 comes from the first columns of the concentration file. IS THIS DEPENDING ON THE WEATHER INPUT FOR ARIA ? The 3 comes from the fact that there are 3 columns for each sensor (concentration, dry and wet deposition)
+    nb_receptors = (len(header)-6)//3 #the 6 comes from the first columns of the concentration file. The 3 comes from the fact that there are 3 columns for each sensor (concentration, dry and wet deposition)
     
     receptor_list=list()
     for i in range(nb_receptors):
@@ -68,13 +68,16 @@ def file_to_dict():
     #Dict containing concentrations for each hour and 
     concentrations = dict()
     
-    for hour in range(nb_events):
+    for h in range(nb_events):
         event = source.readline()
         event = event.split(";")
-        time = event[1] 
-        concentrations[time]=dict()
+        time = event[1]
+        pol = event[0]
+        if pol not in concentrations.keys():
+            concentrations[pol]=dict()
+        concentrations[pol][time]=dict()
         for i in range(nb_receptors):
-            concentrations[time][receptor_list[i]]=find_undef(num(event[6+3*i]))
+            concentrations[pol][time][receptor_list[i]]=find_undef(num(event[6+3*i]))
     
     source.close()
     
@@ -87,50 +90,51 @@ def file_to_dict():
 
 def color_code(x):
     """ Color code for image output, dividing into 8 categories"""
-    limits=[5,7.5,10,13,15,18,20]
+    limits=[1,2,3,4,5,6,7]
+    factor = 0.0001
     
-    if x > limits[6]:
+    if x > factor*limits[6]:
         return 'red'
-    if x > limits[5]:
+    if x > factor*limits[5]:
         return 'orangered'
-    if x > limits[4]:
+    if x > factor*limits[4]:
         return 'coral'
-    if x > limits[3]:
+    if x > factor*limits[3]:
         return 'darkorange'
-    if x > limits[2]:
+    if x > factor*limits[2]:
         return 'orange'
-    if x > limits[1]:
+    if x > factor*limits[1]:
         return 'goldenrod'
-    if x > limits[0]:
+    if x > factor*limits[0]:
         return 'khaki'
     return 'green'
 
 
-def image_output(concentrations):
+def image_output(concentrations, pol='PM'):
     """ Saves images for each hour of the day. The input is the concentration dictionnary. """
     
     print("Creating images...")
     
     image=0
     
-    for hour in concentrations :
+    for hour in concentrations[pol] :
         image=image+1
         
-        event=concentrations[hour]
+        event=concentrations[pol][hour]
         
         fig = plt.figure()
         ax = fig.add_subplot(111, aspect='equal')
-        ax.set_xlim([-10, 10])
-        ax.set_ylim([-10, 10])
+        ax.set_xlim([355, 367])
+        ax.set_ylim([5471, 5483])
         
         
         for zone in event:
-            x=num(zone.split("_")[1])
-            y=num(zone.split("_")[2])
+            x=num(zone.split("_")[1])/10+355
+            y=num(zone.split("_")[2])/10+5471
             conc=event[zone]
             ax.add_patch(patches.Rectangle((x-dx/2, y-dy/2), dx, dy,facecolor=color_code(conc)))
         
-        fig.savefig('image'+str(image)+'.png', dpi=90, bbox_inches='tight')
+        fig.savefig('Documents/image'+str(image)+'.png', dpi=90, bbox_inches='tight')
         plt.close()
 
        
@@ -151,10 +155,10 @@ def mean_concentrations():
     f.close()
     
     f = open(mean_file,"w")
-    i = lines.index(' CONCENTRATION EN MOYENNE ANNUELLE\n') + 5
-    while lines[i] != '  \n':
-        f.write(lines[i])
-        i+=1
+    i = lines.index(' CONCENTRATION EN MOYENNE ANNUELLE\n')
+    j = lines.index(' DEPOTS SECS EN MOYENNE ANNUELLE\n')
+    for k in range(i,j):
+        f.write(lines[k])
     
     f.close()
     
