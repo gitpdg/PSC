@@ -11,7 +11,7 @@ for i in range(division):
     R_X = round(x_min + (x_max-x_min)*(1/2+i)/division,1)
     for j in range(division):
         R_Y = round(y_min + (y_max-y_min)*(1/2+j)/division,1)
-        f.write(str(id) +";"+str(int(R_X*10))+"_"+str(int(R_Y*10))+";"+str(R_X)+";"+str(R_Y)+";0\n")
+        f.write(str(id) +";"+str(int((R_X-355)*10))+"_"+str(int((R_Y-5471)*10))+";"+str(R_X)+";"+str(R_Y)+";0\n")
         id += 1
 
 f.close()
